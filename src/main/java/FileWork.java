@@ -3,20 +3,50 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class FileWork {
+    private static final String SPECIFIED_CHARACTER = "w";
+    StringBuilder finalString = new StringBuilder();
+    StringBuilder draftString = new StringBuilder();
+
     public String[] readFromFile(String fileName) {
-        //write your code here
-        try {
-            StringBuilder result = new StringBuilder();
-            BufferedReader input = new BufferedReader(new FileReader(fileName));
-            String value = input.readLine();
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
+            String value = bufferedReader.readLine();
             while (value != null) {
-                result.append(value.replaceAll("[A-Za-z]", "")).append(" ");
-                value = input.readLine();
+                draftString.append(value.replaceAll("[,!:;.?]", "")).append(" ");
+                value = bufferedReader.readLine();
             }
-            System.out.println(result);
-        } catch (IOException e)  {
-            throw new RuntimeException("Can't read file", e);
+            for (String word: (draftString.toString().split(" "))) {
+                if (checkWord(word)) {
+                    finalString.append(word.toLowerCase()).append(" ");
+                }
+            }
+            return sortArray(finalString.toString().split(" "));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return null;
+    }
+
+    private boolean checkWord(String word) {
+        return word.toLowerCase().startsWith(SPECIFIED_CHARACTER);
+    }
+
+    private String[] sortArray(String[] array) {
+        if (array[0].equals("") && array.length == 1) {
+            return new String[0];
+        }
+        String buffer;
+        boolean flag = false;
+
+        while (!flag) {
+            flag = true;
+            for (int i = 0; i < array.length - 1; i++) {
+                if (array[i].compareTo(array[i+1]) > 0) {
+                    buffer = array[i];
+                    array[i] = array[i + 1];
+                    array[i + 1 ] = buffer;
+                    flag = false;
+                }
+            }
+        }
+        return array;
     }
 }
